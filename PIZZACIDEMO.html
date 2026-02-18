@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lezzet Pizza Neon Pro</title>
+
+<style>
+body{margin:0;font-family:'Segoe UI';background:#0f0f0f;color:white;}
+header{text-align:center;padding:20px;font-size:28px;background:#000;color:#0ff;text-shadow:0 0 15px #0ff;}
+.container{max-width:1100px;margin:auto;padding:30px;}
+button{cursor:pointer;border:none;padding:8px 15px;border-radius:8px;margin:5px;transition:0.3s;}
+.neon-btn{background:#111;color:#0ff;border:1px solid #0ff;}
+.neon-btn:hover{box-shadow:0 0 15px #0ff;}
+.card{background:#1a1a1a;padding:20px;margin:15px 0;border-radius:15px;box-shadow:0 0 20px rgba(0,255,255,0.2);animation:fadeIn 0.5s;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+select{padding:8px;border-radius:6px;background:#000;color:#0ff;border:1px solid #0ff;}
+.cart{background:#111;padding:20px;border-radius:15px;margin-top:30px;box-shadow:0 0 20px rgba(0,255,255,0.3);}
+.cart-item{display:flex;justify-content:space-between;align-items:center;margin:8px 0;}
+.qty-btn{background:#0ff;color:black;padding:4px 8px;border-radius:5px;}
+.delete-btn{background:red;color:white;}
+.total{margin-top:15px;font-size:18px;color:#0ff;}
+footer{text-align:center;padding:20px;margin-top:40px;font-size:14px;color:#0ff;}
+</style>
+</head>
+
+<body>
+
+<header>🍕 PİZZA SİTE DEMO</header>
+
+<div class="container">
+
+<h2>Kategoriler</h2>
+<button class="neon-btn" onclick="showCategory('food')">Yiyecek</button>
+<button class="neon-btn" onclick="showCategory('drink')">İçecek</button>
+
+<!-- YİYECEK -->
+<div id="food">
+
+<div class="card">
+<h3>Karışık Pizza</h3>
+<select id="p1">
+<option value="180">Orta Boy - 180₺</option>
+<option value="230">Büyük Boy - 230₺</option>
+<option value="280">Aile Boy - 280₺</option>
+</select>
+<button class="neon-btn" onclick="addCart('Karışık Pizza','p1')">Sepete Ekle</button>
+</div>
+
+<div class="card">
+<h3>Bol Peynirli Pizza</h3>
+<select id="p2">
+<option value="170">Orta Boy - 170₺</option>
+<option value="220">Büyük Boy - 220₺</option>
+<option value="260">Ekstra Peynirli Büyük - 260₺</option>
+</select>
+<button class="neon-btn" onclick="addCart('Bol Peynirli Pizza','p2')">Sepete Ekle</button>
+</div>
+
+<div class="card">
+<h3>Sucuklu Pizza</h3>
+<select id="p3">
+<option value="190">Orta Boy - 190₺</option>
+<option value="240">Büyük Boy - 240₺</option>
+<option value="290">Aile Boy - 290₺</option>
+</select>
+<button class="neon-btn" onclick="addCart('Sucuklu Pizza','p3')">Sepete Ekle</button>
+</div>
+
+</div>
+
+<!-- İÇECEK -->
+<div id="drink" style="display:none;">
+
+<div class="card">
+<h3>Kola (Pepsi)</h3>
+<select id="d1">
+<option value="30">330 ml - 30₺</option>
+<option value="55">1 Litre - 55₺</option>
+<option value="85">2.5 Litre - 85₺</option>
+</select>
+<button class="neon-btn" onclick="addCart('Kola (Pepsi)','d1')">Sepete Ekle</button>
+</div>
+
+<div class="card">
+<h3>Ayran</h3>
+<select id="d2">
+<option value="20">Küçük - 20₺</option>
+<option value="35">Büyük - 35₺</option>
+</select>
+<button class="neon-btn" onclick="addCart('Ayran','d2')">Sepete Ekle</button>
+</div>
+
+<div class="card">
+<h3>Su</h3>
+<select id="d3">
+<option value="10">0.5 Litre - 10₺</option>
+<option value="18">1.5 Litre - 18₺</option>
+</select>
+<button class="neon-btn" onclick="addCart('Su','d3')">Sepete Ekle</button>
+</div>
+
+</div>
+
+<div class="cart">
+<h2>Sepet</h2>
+<div id="cartList"></div>
+<div class="total">Toplam: <span id="totalPrice">0</span>₺</div>
+<button class="neon-btn" onclick="sendOrder()">WhatsApp Gönder</button>
+</div>
+
+</div>
+
+<footer>
+📍 Adres: Cumhuriyet Mah. 1456. Sokak No:12, Nilüfer / Bursa  
+📞 +90 555 555 55 55
+</footer>
+
+<script>
+let cart=[];
+
+function showCategory(cat){
+    document.getElementById("food").style.display="none";
+    document.getElementById("drink").style.display="none";
+    document.getElementById(cat).style.display="block";
+}
+
+function addCart(name,id){
+    let select=document.getElementById(id);
+    let detail=select.options[select.selectedIndex].text;
+    let price=parseInt(select.value);
+
+    let existing=cart.find(item=>item.name===name && item.detail===detail);
+    if(existing){
+        existing.qty++;
+    }else{
+        cart.push({name,detail,price,qty:1});
+    }
+    renderCart();
+}
+
+function renderCart(){
+    let list=document.getElementById("cartList");
+    list.innerHTML="";
+    let total=0;
+
+    cart.forEach((item,index)=>{
+        total+=item.price*item.qty;
+
+        list.innerHTML+=`
+        <div class="cart-item">
+        <span>${item.name} - ${item.detail} (x${item.qty})</span>
+        <div>
+        <button class="qty-btn" onclick="changeQty(${index},-1)">-</button>
+        <button class="qty-btn" onclick="changeQty(${index},1)">+</button>
+        <button class="delete-btn" onclick="removeItem(${index})">X</button>
+        </div>
+        </div>`;
+    });
+
+    document.getElementById("totalPrice").innerText=total;
+}
+
+function changeQty(index,val){
+    cart[index].qty+=val;
+    if(cart[index].qty<=0) cart.splice(index,1);
+    renderCart();
+}
+
+function removeItem(index){
+    cart.splice(index,1);
+    renderCart();
+}
+
+function sendOrder(){
+    if(cart.length===0){
+        alert("Sepet boş!");
+        return;
+    }
+
+    let mesaj="Merhaba sipariş:%0A";
+    cart.forEach(item=>{
+        mesaj+=`${item.name} - ${item.detail} (x${item.qty})%0A`;
+    });
+
+    window.open("https://wa.me/905555555555?text="+mesaj);
+}
+</script>
+
+</body>
+</html>
